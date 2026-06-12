@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>6月份运营累计播放量看板 - A区</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f1923;color:#e0e0e0;font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;padding:24px}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
+.header h1{font-size:24px;font-weight:600;color:#fff}
+.header .subtitle{color:#8899aa;font-size:14px;margin-top:4px}
+.section-title{font-size:18px;font-weight:600;color:#e0f0ff;margin:32px 0 20px;padding:10px 16px;background:#1a2d3d;border-radius:8px;border-left:4px solid #4fc3f7}
+.section-title.digital{border-left-color:#81c784}
+.section-title.graphic{border-left-color:#ffb74d}
+.summary-row{display:flex;gap:16px;margin-bottom:28px;flex-wrap:wrap}
+.summary-card{background:#1a2d3d;border-radius:12px;padding:18px 24px;min-width:150px;flex:1}
+.summary-card .label{color:#8899aa;font-size:13px;margin-bottom:6px}
+.summary-card .value{font-size:28px;font-weight:700;color:#fff}
+.summary-card .sub{font-size:12px;color:#5a7a8a;margin-top:4px}
+.grid{display:grid;gap:20px;margin-bottom:20px}
+.grid-2{grid-template-columns:1fr 1fr}
+.grid-3{grid-template-columns:1fr 1fr 1fr}
+.chart-card{background:#1a2d3d;border-radius:12px;padding:20px}
+.chart-card h3{font-size:14px;color:#c0d0e0;margin-bottom:14px;font-weight:500}
+.chart-card .chart-wrap{position:relative;height:260px}
+.chart-card .chart-wrap.short{height:200px}
+.chart-card .chart-wrap.tall{height:340px}
+.rank-table{width:100%;border-collapse:collapse;font-size:13px}
+.rank-table th{color:#5a7a8a;font-weight:500;text-align:left;padding:8px 6px;border-bottom:1px solid #2a4a5a}
+.rank-table td{padding:8px 6px;border-bottom:1px solid #1a3040}
+.rank-table .rk{color:#5a7a8a;width:32px}
+.rank-table .rk1{color:#ffd700}
+.rank-table .rk2{color:#c0c0c0}
+.rank-table .rk3{color:#cd7f32}
+.rank-table .hl{color:#4fc3f7}
+.tag{display:inline-block;padding:2px 10px;border-radius:10px;font-size:11px;background:#2a4a5a;color:#80c0e0}
+.tag-w{background:#2a4a3a;color:#60d080}
+@media(max-width:900px){.grid-2,.grid-3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="header"><div><h1>6月份运营累计播放量看板</h1><div class="subtitle">数据期间：6月1日 - 6月11日 ｜ A 区 ｜ 按文案类型分板块</div></div></div>
+
+<div id="app"></div>
+
+<script>
+var D = {"digital": {"label": "数字人视频", "persons": [["庄惜婷", {"play": 8.7, "pub": 305, "over5k": 3, "opct": 0.98, "us": 95.73}], ["王春燕", {"play": 4.1, "pub": 735, "over5k": 2, "opct": 0.27, "us": 96.1}]], "writers": [["刘信良", {"play": 12.2, "pub": 604, "over5k": 4, "opct": 0.66}], ["何嘉玲", {"play": 0.6, "pub": 425, "over5k": 1, "opct": 0.24}], ["林秋利", {"play": 0, "pub": 11, "over5k": 0, "opct": 0.0}]], "total_play": 12.8, "total_pub": 1040, "total_over5k": 5}, "graphic": {"label": "测评图文", "persons": [["吴丽贞", {"play": 26.4, "pub": 1596, "over5k": 20, "opct": 1.25, "us": 70.05}], ["蔡晓雪", {"play": 6.6, "pub": 1452, "over5k": 9, "opct": 0.62, "us": 37.13}], ["庄惜婷", {"play": 0.5, "pub": 904, "over5k": 1, "opct": 0.11, "us": 5.8}]], "writers": [["桂环", {"play": 33.5, "pub": 3952, "over5k": 30, "opct": 0.76}]], "total_play": 33.5, "total_pub": 3952, "total_over5k": 30}};
+var COL = ['#4fc3f7','#81c784','#ffb74d','#e57373','#ba68c8','#4db6ac','#f06292','#a1887f'];
+
+function barChart(containerId, items, key, label) {
+  var sorted = items.slice().sort(function(a,b){return b[1][key]-a[1][key]});
+  var c = document.createElement('canvas');
+  document.getElementById(containerId).appendChild(c);
+  new Chart(c, {
+    type: 'bar',
+    data: {labels: sorted.map(function(x){return x[0]}), datasets: [{data: sorted.map(function(x){return x[1][key]}), label: label, backgroundColor: COL.slice(0,sorted.length), borderRadius: 4}]},
+    options: {responsive: true, maintainAspectRatio: false,
+      plugins: {legend: {labels: {color:'#c0d0e0', font:{size:11}, boxWidth:12}}},
+      scales: {x: {ticks:{color:'#8899aa',font:{size:11}},grid:{color:'#1a3040'}},
+               y: {ticks:{color:'#8899aa',font:{size:11}},grid:{color:'#1a3040'}}}}
+  });
+}
+
+function rankTable(containerId, items, fields) {
+  var h = '<table class="rank-table"><tr><th>#</th><th>名字</th>';
+  for (var f=0; f<fields.length; f++) h += '<th>'+fields[f].l+'</th>';
+  h += '</tr>';
+  for (var i=0; i<items.length; i++) {
+    var rc = ['rk','rk1','rk2','rk3'][i]||'rk';
+    h += '<tr><td class="'+rc+'">'+(i+1)+'</td><td>'+items[i][0]+'</td>';
+    for (var f=0; f<fields.length; f++) {
+      var v = fields[f].fmt ? fields[f].fmt(items[i][1]) : items[i][1][fields[f].k];
+      h += '<td class="hl">'+v+'</td>';
+    }
+    h += '</tr>';
+  }
+  h += '</table>';
+  document.getElementById(containerId).innerHTML = h;
+}
+
+function buildSection(sec, sectionClass, containerId) {
+  var ps = sec.persons, ws = sec.writers;
+  var tp = sec.total_play, tpub = sec.total_pub, tov = sec.total_over5k;
+  var tpc = tpub>0?(tov/tpub*100).toFixed(2):'0.00';
+  var app = document.getElementById(containerId);
+
+  // Section title
+  var title = document.createElement('div');
+  title.className = 'section-title ' + sectionClass;
+  title.textContent = sec.label;
+  app.appendChild(title);
+
+  // Summary cards
+  var cards = document.createElement('div');
+  cards.className = 'summary-row';
+  cards.innerHTML =
+    '<div class="summary-card"><div class="label">月累计播放量</div><div class="value">'+tp.toFixed(2)+'W</div><div class="sub">总播放量</div></div>'+
+    '<div class="summary-card"><div class="label">月累计发布条数</div><div class="value">'+tpub.toLocaleString()+'</div><div class="sub">破0起计</div></div>'+
+    '<div class="summary-card"><div class="label">上5K条数</div><div class="value">'+tov+'</div><div class="sub">爆款数量</div></div>'+
+    '<div class="summary-card"><div class="label">上5K占比</div><div class="value">'+tpc+'%</div><div class="sub">爆款率</div></div>'+
+    '<div class="summary-card"><div class="label">运营人数</div><div class="value">'+ps.length+' 人</div><div class="sub"></div></div>';
+  app.appendChild(cards);
+
+  // Unique IDs for this section
+  var uid = sectionClass;
+  var ids = {
+    pPlay: uid+'_pPlay', pOver5k: uid+'_pOver5k', pOpct: uid+'_pOpct',
+    pPub: uid+'_pPub', pUs: uid+'_pUs', pRank: uid+'_pRank',
+    wPlay: uid+'_wPlay', wOver5k: uid+'_wOver5k', wPub: uid+'_wPub', wRank: uid+'_wRank'
+  };
+
+  var html = '';
+
+  // 运营线
+  html += '<div class="grid grid-2">';
+  html += '<div class="chart-card"><h3><span class="tag">运营</span> 月累计播放量对比</h3><div class="chart-wrap tall" id="'+ids.pPlay+'"></div></div>';
+  html += '<div class="chart-card"><h3><span class="tag">运营</span> 月累计上5k条数</h3><div class="chart-wrap tall" id="'+ids.pOver5k+'"></div></div>';
+  html += '</div>';
+  html += '<div class="grid grid-3">';
+  html += '<div class="chart-card"><h3><span class="tag">运营</span> 月累计上5k占比</h3><div class="chart-wrap short" id="'+ids.pOpct+'"></div></div>';
+  html += '<div class="chart-card"><h3><span class="tag">运营</span> 月累计发布条数对比</h3><div class="chart-wrap short" id="'+ids.pPub+'"></div></div>';
+  html += '<div class="chart-card"><h3><span class="tag">运营</span> 月累计美国推送比例对比</h3><div class="chart-wrap short" id="'+ids.pUs+'"></div></div>';
+  html += '</div>';
+  html += '<div class="grid grid-2">';
+  html += '<div class="chart-card"><h3><span class="tag">运营</span> 月累计播放量·排行榜</h3><div id="'+ids.pRank+'"></div></div>';
+  html += '<div class="chart-card"><h3><span class="tag">运营</span> 月累计播放量-小组</h3><div style="display:flex;align-items:center;justify-content:center;height:200px;color:#5a7a8a;font-size:13px">无小组分组数据，暂不展示</div></div>';
+  html += '</div>';
+
+  // 文案线
+  html += '<div class="grid grid-2">';
+  html += '<div class="chart-card"><h3><span class="tag tag-w">文案</span> 月累计播放量对比</h3><div class="chart-wrap tall" id="'+ids.wPlay+'"></div></div>';
+  html += '<div class="chart-card"><h3><span class="tag tag-w">文案</span> 月累计上5k条数</h3><div class="chart-wrap tall" id="'+ids.wOver5k+'"></div></div>';
+  html += '</div>';
+  html += '<div class="grid grid-2">';
+  html += '<div class="chart-card"><h3><span class="tag tag-w">文案</span> 月累计发布条数对比</h3><div class="chart-wrap short" id="'+ids.wPub+'"></div></div>';
+  html += '<div class="chart-card"><h3><span class="tag tag-w">文案</span> 月累计播放量·排行榜</h3><div id="'+ids.wRank+'"></div></div>';
+  html += '</div>';
+
+  // Append blocks
+  var div = document.createElement('div');
+  div.innerHTML = html;
+  while (div.firstChild) app.appendChild(div.firstChild);
+
+  // Render charts
+  barChart(ids.pPlay, ps, 'play', '播放量（W）');
+  barChart(ids.pOver5k, ps, 'over5k', '上5K条数');
+  barChart(ids.pOpct, ps, 'opct', '上5K占比（%）');
+  barChart(ids.pPub, ps, 'pub', '发布条数');
+  barChart(ids.pUs, ps, 'us', '美国占比（%）');
+  rankTable(ids.pRank, ps, [{k:'play',l:'播放量(W)',fmt:function(v){return v.play.toFixed(2)}},{k:'over5k',l:'上5K',fmt:function(v){return v.over5k}},{k:'opct',l:'上5K占比',fmt:function(v){return v.opct+'%'}},{k:'us',l:'美国占比',fmt:function(v){return v.us+'%'}},{k:'pub',l:'发布条数',fmt:function(v){return v.pub}}]);
+
+  barChart(ids.wPlay, ws, 'play', '播放量（W）');
+  barChart(ids.wOver5k, ws, 'over5k', '上5K条数');
+  barChart(ids.wPub, ws, 'pub', '发布条数');
+  rankTable(ids.wRank, ws, [{k:'play',l:'播放量(W)',fmt:function(v){return v.play.toFixed(2)}},{k:'over5k',l:'上5K',fmt:function(v){return v.over5k}},{k:'pub',l:'发布条数',fmt:function(v){return v.pub}},{k:'opct',l:'上5K占比',fmt:function(v){return v.opct+'%'}}]);
+}
+
+buildSection(D.digital, 'digital', 'app');
+buildSection(D.graphic, 'graphic', 'app');
+</script>
+</body>
+</html>

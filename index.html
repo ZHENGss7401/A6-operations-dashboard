@@ -133,7 +133,7 @@ function buildSection(sec, containerId) {
   }
 
   h += '</div>';
-  app.innerHTML += h;
+  document.getElementById(containerId).insertAdjacentHTML('beforeend', h);
 
   // Render
   b('pc_'+sec.label, ps, 'play', '播放量（W）');
